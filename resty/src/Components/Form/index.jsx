@@ -24,7 +24,7 @@ function Form(props) {
         <textarea name="textArea">   </textarea>
 
         <label className="methods">
-          <input type="radio" name="method" value="GET" /> GET
+          <input data-testid='GET' type="radio" name="method" value="GET" /> GET
           <input type="radio" name="method" value="POST" /> POST
           <input type="radio" name="method" value="PUT" /> PUT
           <input type="radio" name="method" value="DELETE" /> DELETE

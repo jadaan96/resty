@@ -54,7 +54,7 @@ function App ()  {
     return (
       <React.Fragment>
         <Header />
-        <div>URL: {requestParams.url}</div>
+        <div data-testid="URL" >URL: {requestParams.url}</div>
         <div>Request Method: {requestParams.method}</div>
         <Form handleApiCall={callApi} setloading={setloading}  />
         <Results data={data} loading={loading} />
