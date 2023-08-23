@@ -2,6 +2,10 @@ $backgroundColor: #efefef;
 $radius: 40%;
 
 form {
+  textarea{
+    width: 500px;
+    height: 300px;
+  }
   display: inline-block;
   margin: auto;
   width: 200px;

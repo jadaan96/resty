@@ -1,5 +1,5 @@
-import React from 'react';
-
+import React, { useState } from 'react';
+import axios from 'axios';
 import './App.scss';
 
 // Let's talk about using index.js and some other name in the component folder.
@@ -11,40 +11,57 @@ import Footer from './Components/Footer';
 import Form from './Components/Form';
 import Results from './Components/Results';
 
-class App extends React.Component {
+function App ()  {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      data: null,
-      requestParams: {},
-    };
+ const [data,setData]=useState({})
+ const [requestParams,setrequestParams]=useState({})
+ const [loading,setloading]=useState(false)
+
+    
+
+  const callApi = (requestParams) => {
+    // // mock output
+    // const  x= requestParams.method.evil()
+    // console.log(x);
+    if(requestParams.method === "POST" ){
+      
+      const PostInput = axios.post(`${requestParams.url}`,requestParams.obj).then((data)=>{
+        console.log(data);
+        setData(data)
+        setrequestParams(requestParams)
+      })
+    } else if(requestParams.method === "PUT" ){
+      
+      axios.put(`${requestParams.url}`,requestParams.obj).then((data)=>{
+        console.log(data);
+        setData(data)
+        setrequestParams(requestParams)
+      })
+    }
+    else{
+    const urlInput = axios.get(`${requestParams.url}`).then((data)=>{
+      console.log(data);
+      setloading(false)
+      setData(data)
+      setloading(true)
+
+      setrequestParams(requestParams)
+    })}
+    
   }
 
-  callApi = (requestParams) => {
-    // mock output
-    const data = {
-      count: 2,
-      results: [
-        {name: 'fake thing 1', url: 'http://fakethings.com/1'},
-        {name: 'fake thing 2', url: 'http://fakethings.com/2'},
-      ],
-    };
-    this.setState({data, requestParams});
-  }
-
-  render() {
+ 
     return (
       <React.Fragment>
         <Header />
-        <div>URL: {this.state.requestParams.url}</div>
-        <div>Request Method: {this.state.requestParams.method}</div>
-        <Form handleApiCall={this.callApi} />
-        <Results data={this.state.data} />
+        <div>URL: {requestParams.url}</div>
+        <div>Request Method: {requestParams.method}</div>
+        <Form handleApiCall={callApi} setloading={setloading}  />
+        <Results data={data} loading={loading} />
         <Footer />
       </React.Fragment>
     );
-  }
+  
 }
 
 export default App;
