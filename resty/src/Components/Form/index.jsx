@@ -5,7 +5,7 @@ function Form(props) {
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = {
-      method: e.target.method.value, 
+      method: e.target.method.value || "GET", 
       url: e.target.url.value, 
       obj:e.target.textArea.value
     };

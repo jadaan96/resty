@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import axios from 'axios';
 import './App.scss';
 
@@ -14,10 +14,13 @@ import Results from './Components/Results';
 function App ()  {
 
  const [data,setData]=useState({})
+   const [show, setShow] = useState(false)
+     const [header, setHeader] = useState()
+
  const [requestParams,setrequestParams]=useState({})
  const [loading,setloading]=useState(false)
 
-    
+    console.log(requestParams);
 
   const callApi = (requestParams) => {
     // // mock output
@@ -40,25 +43,32 @@ function App ()  {
     }
     else{
     const urlInput = axios.get(`${requestParams.url}`).then((data)=>{
+      const contentType = data.headers;
       console.log(data);
-      setloading(false)
       setData(data)
+        setHeader(contentType)
+      setShow(true)
+      setloading(false)
       setloading(true)
 
       setrequestParams(requestParams)
     })}
     
   }
-
+  useEffect(() => {
+    // setData()
+  }, [requestParams,data])
  
     return (
       <React.Fragment>
         <Header />
         <div data-testid="URL" >URL: {requestParams.url}</div>
-        <div>Request Method: {requestParams.method}</div>
+        <div>Request Method: {requestParams.method} </div>
         <Form handleApiCall={callApi} setloading={setloading}  />
-        <Results data={data} loading={loading} />
-        <Footer />
+        {
+        show &&
+        <Results  handleApiCall ={callApi} response={data} header={header} loading={loading} setrequestParams={setrequestParams} />
+      }        <Footer />
       </React.Fragment>
     );
   
