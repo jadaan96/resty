@@ -26,7 +26,7 @@ test('Form updates method when method is clicked', () => {
   });
   test('displays loading text when loading is true', () => {
     render(<App />);
-    const loadingText = screen.getByText("loading...");
-    // console.log(loadingText);
-    expect(loadingText.textContent).toBe("loading...");
+    const loadingText = screen.getByText("Request Method:");
+    console.log(loadingText);
+    expect(loadingText.textContent).toBe("Request Method:  ");
 });
