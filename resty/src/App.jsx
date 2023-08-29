@@ -1,5 +1,5 @@
-import React, { useState,useEffect } from 'react';
-import axios from 'axios';
+import React, { useEffect, useReducer } from 'react';
+
 import './App.scss';
 
 // Let's talk about using index.js and some other name in the component folder.
@@ -10,68 +10,71 @@ import Header from './Components/Header';
 import Footer from './Components/Footer';
 import Form from './Components/Form';
 import Results from './Components/Results';
+import History from './Components/History/History';
+import axios from 'axios';
+import { TYPES } from './Components/reducer/reducerTypes'
+import { INITIAL_STATES, reducerHandler } from './Components/reducer/Reducer'
+function App() {
 
-function App ()  {
+  const [state, dispatch] = useReducer(reducerHandler, INITIAL_STATES)
 
- const [data,setData]=useState({})
-   const [show, setShow] = useState(false)
-     const [header, setHeader] = useState()
-
- const [requestParams,setrequestParams]=useState({})
- const [loading,setloading]=useState(false)
-
-    console.log(requestParams);
+  // re render the page everytime the response update
 
   const callApi = (requestParams) => {
-    // // mock output
-    // const  x= requestParams.method.evil()
-    // console.log(x);
-    if(requestParams.method === "POST" ){
-      
-      const PostInput = axios.post(`${requestParams.url}`,requestParams.obj).then((data)=>{
-        console.log(data);
-        setData(data)
-        setrequestParams(requestParams)
+    dispatch({ type: TYPES.requestParams, payload: requestParams })
+    if (requestParams.method === 'post') {
+      axios.post(requestParams.url, requestParams.data).then(item => {
+        dispatch({ type: TYPES.method, payload: { item, requestParams } })
+
       })
-    } else if(requestParams.method === "PUT" ){
-      
-      axios.put(`${requestParams.url}`,requestParams.obj).then((data)=>{
-        console.log(data);
-        setData(data)
-        setrequestParams(requestParams)
+
+    }
+    else if (requestParams.method === 'put') {
+      axios.put(`${requestParams.url}/update/${id}`, data).then(item => {
+        dispatch({ type: TYPES.method, payload: { item, requestParams } })
       })
     }
-    else{
-    const urlInput = axios.get(`${requestParams.url}`).then((data)=>{
-      const contentType = data.headers;
-      console.log(data);
-      setData(data)
-        setHeader(contentType)
-      setShow(true)
-      setloading(false)
-      setloading(true)
+    else if (requestParams.method === 'delete') {
+      axios.delete(`${requestParams.url}/delete/${id}`).then(item => {
+        dispatch({ type: TYPES.method, payload: { item, requestParams } })
 
-      setrequestParams(requestParams)
-    })}
-    
+      })
+    } else {
+      dispatch({ type: TYPES.loading })
+      dispatch({ type: 'show' })
+      setTimeout(() => {
+        axios.get(requestParams.url).then(item => {
+          const contentType = item.headers;
+          dispatch({ type: TYPES.header, payload: contentType })
+          dispatch({ type: TYPES.notLoading })
+          dispatch({ type: TYPES.method, payload: { item, requestParams } })
+
+        })
+      }, 1000)
+    }
   }
+
   useEffect(() => {
-    // setData()
-  }, [requestParams,data])
- 
-    return (
-      <React.Fragment>
-        <Header />
-        <div data-testid="URL" >URL: {requestParams.url}</div>
-        <div>Request Method: {requestParams.method} </div>
-        <Form handleApiCall={callApi} setloading={setloading}  />
-        {
-        show &&
-        <Results  handleApiCall ={callApi} response={data} header={header} loading={loading} setrequestParams={setrequestParams} />
-      }        <Footer />
-      </React.Fragment>
-    );
-  
+    if (state.method && state.url) {
+      callApi(state);
+    }
+  }, [state]);
+
+  return (
+    <React.Fragment>
+      <Header />
+      <div>Request Method: {state.requestParams.method}</div>
+      <div>URL: {state.requestParams.url}</div>
+      <Form handleApiCall={callApi} />
+      {
+        state.show &&
+        <Results state={state} handleApiCall={callApi} />
+      }
+      <History state={state} />
+      <Footer />
+    </React.Fragment>
+  );
+
 }
 
 export default App;
